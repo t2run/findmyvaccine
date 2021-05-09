@@ -3,6 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 	"t2findmyvaccinebot/pkg/common"
@@ -14,6 +16,16 @@ import (
 
 // start introduces the bot
 func Start(b *gotgbot.Bot, ctx *ext.Context) error {
+	fmt.Println("New User:")
+	fmt.Println(ctx.EffectiveUser)
+	f, errf := os.OpenFile("testlogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if errf != nil {
+		log.Fatalf("error opening file: %v", errf)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	log.Println("New User:")
+	log.Println(ctx.EffectiveUser)
 	_, err := ctx.EffectiveMessage.Reply(b, fmt.Sprintf("Hello"+emoji(`"\xE2\x9C\x8B"`)+", I'm @%s "+emoji(`"\xF0\x9F\x91\xBE"`)+". I <b>will help you to find </b>available vaccine slots."+emoji(`"\xF0\x9F\x92\x89"`), b.User.Username), &gotgbot.SendMessageOpts{
 		ParseMode: "html",
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
@@ -76,6 +88,19 @@ func KlDist(b *gotgbot.Bot, ctx *ext.Context) error {
 
 //Handle all requests
 func HandleAll(b *gotgbot.Bot, ctx *ext.Context) error {
+
+	fmt.Println("New User request:")
+	fmt.Println(ctx.EffectiveUser)
+	fmt.Println(ctx.EffectiveMessage)
+	f, err := os.OpenFile("testlogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+	log.Println("New User request:")
+	log.Println(ctx.EffectiveUser)
+	fmt.Println(ctx.EffectiveMessage)
 
 	slotHelp := "\n  " + emoji(`"\x31\xE2\x83\xA3"`) + "Find Slots by PinCode \nPin <pincode>,<DD-MM-YYYY> \n eg: Pin 110012,06-05-2021 \n \n" + emoji(`"\x32\xE2\x83\xA3"`) + "Find Slots by District Code \nFind <districtcode>,<DD-MM-YYYY> \n  eg: Find 140,06-05-2021 \n\n " + emoji(`"\x33\xE2\x83\xA3"`) + "To get your district code \n Dist <statecode> \n  eg: Dist 17 \n\n " + emoji(`"\x34\xE2\x83\xA3"`) + " To get your State Code \n /states \n"
 	message := strings.ToLower(ctx.EffectiveMessage.Text)
